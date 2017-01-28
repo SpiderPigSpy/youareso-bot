@@ -1,0 +1,17 @@
+[package]
+name = "youareso"
+version = "0.1.0"
+authors = ["Alex <busarovalex@yandex.ru>"]
+
+[dependencies]
+telegram-bot = "0.5"
+env_logger = "*"
+log = "*"
+diesel = "*"
+regex = "0.2"
+lazy_static = "*"
+accord = "0.2.2"
+dotenv = "*"
+
+[dependencies.repo]
+path = "../repo"
