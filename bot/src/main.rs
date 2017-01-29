@@ -10,6 +10,8 @@ extern crate lazy_static;
 #[macro_use]
 extern crate accord;
 extern crate dotenv;
+extern crate r2d2;
+extern crate r2d2_diesel;
 
 mod domain;
 mod id;
@@ -17,14 +19,13 @@ mod bot;
 mod application;
 
 use telegram_bot::*;
-use diesel::pg::PgConnection;
-use diesel::connection::Connection;
 use dotenv::dotenv;
 use std::env;
 
 use bot::*;
 use bot::handler::*;
 use application::services::*;
+use application::pool::*;
 
 pub fn main() {
     env_logger::init().unwrap();
@@ -67,8 +68,8 @@ fn listen(api: Api) -> Result<()> {
     return res;
 }
 
-fn establish_connection() -> PgConnection {
+fn establish_connection() -> ConnectionPool {
     dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url).unwrap()
+    ConnectionPool::new(&database_url)
 }

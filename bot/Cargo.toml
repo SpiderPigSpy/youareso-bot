@@ -12,6 +12,8 @@ regex = "0.2"
 lazy_static = "*"
 accord = "0.2.2"
 dotenv = "*"
+r2d2 = "*"
+r2d2-diesel = "*"
 
 [dependencies.repo]
 path = "../repo"

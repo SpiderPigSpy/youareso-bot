@@ -1,17 +1,16 @@
-use diesel::pg::PgConnection;
-
 use repo::dao::User as RawUser;
 use repo::dao::NewUser as RawNewUser;
 
 use domain::*;
 use id::*;
+use application::pool::*;
 
 pub struct PostgresUserRepository<'r> {
-    conn: &'r PgConnection
+    conn: &'r ConnectionPool
 }
 
 impl<'r> PostgresUserRepository<'r> {
-    pub fn new(conn: &'r PgConnection) -> PostgresUserRepository {
+    pub fn new(conn: &'r ConnectionPool) -> PostgresUserRepository {
         PostgresUserRepository {
             conn: conn
         }
@@ -24,7 +23,7 @@ impl<'r> UserRepository for PostgresUserRepository<'r> {
     }
 
     fn find_one_by_telegram_id(&self, user_telegram_id: i64) -> Option<User> {
-        ::repo::user::find_one_by_telegram_id(user_telegram_id, self.conn)
+        ::repo::user::find_one_by_telegram_id(user_telegram_id, &*self.conn.get())
             .map(User::from)
     }
     
@@ -33,7 +32,7 @@ impl<'r> UserRepository for PostgresUserRepository<'r> {
             username: new_user.username,
             telegram_id: new_user.telegram_id
         };
-        User::from(::repo::user::create(&raw_new_user, self.conn))
+        User::from(::repo::user::create(&raw_new_user, &*self.conn.get()))
     }
 }
 

@@ -1,17 +1,16 @@
-use diesel::pg::PgConnection;
-
 use repo::dao::Subject as RawSubject;
 use repo::dao::NewSubject as RawNewSubject;
 
 use domain::*;
 use id::*;
+use application::pool::*;
 
 pub struct PostgresSubjectRepository<'r> {
-    conn: &'r PgConnection
+    conn: &'r ConnectionPool
 }
 
 impl<'r> PostgresSubjectRepository<'r> {
-    pub fn new(conn: &'r PgConnection) -> PostgresSubjectRepository {
+    pub fn new(conn: &'r ConnectionPool) -> PostgresSubjectRepository {
         PostgresSubjectRepository {
             conn: conn
         }
@@ -24,7 +23,7 @@ impl<'r> SubjectRepository for PostgresSubjectRepository<'r> {
     }
 
     fn find_one_by_value(&self, value: &str) -> Option<Subject> {
-        ::repo::subject::find_one_by_value(value, self.conn)
+        ::repo::subject::find_one_by_value(value, &*self.conn.get())
             .map(Subject::from)
     }
     
@@ -32,7 +31,7 @@ impl<'r> SubjectRepository for PostgresSubjectRepository<'r> {
         let raw_new_subject = RawNewSubject {
             value: new_subject.value
         };
-        Subject::from(::repo::subject::create(&raw_new_subject, self.conn))
+        Subject::from(::repo::subject::create(&raw_new_subject, &*self.conn.get()))
     }
 }
 
