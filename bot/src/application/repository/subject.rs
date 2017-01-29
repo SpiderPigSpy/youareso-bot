@@ -18,8 +18,9 @@ impl<'r> PostgresSubjectRepository<'r> {
 }
 
 impl<'r> SubjectRepository for PostgresSubjectRepository<'r> {
-    fn find_one(&self, _: SubjectId) -> Option<Subject> {
-        unimplemented!();
+    fn find_one(&self, id: SubjectId) -> Option<Subject> {
+        ::repo::subject::find_one_by_id(*id, &*self.conn.get())
+            .map(Subject::from)
     }
 
     fn find_one_by_value(&self, value: &str) -> Option<Subject> {

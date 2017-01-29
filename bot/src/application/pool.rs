@@ -10,7 +10,7 @@ pub struct ConnectionPool {
 impl ConnectionPool {
     pub fn new(connection_string: &str) -> ConnectionPool {
         let config = ::r2d2::Config::builder()
-            .pool_size(1)
+            .pool_size(10)
             .helper_threads(1)
             .build();
         let manager = ConnectionManager::<PgConnection>::new(connection_string);

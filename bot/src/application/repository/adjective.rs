@@ -18,8 +18,9 @@ impl<'r> PostgresAdjectiveRepository<'r> {
 }
 
 impl<'r> AdjectiveRepository for PostgresAdjectiveRepository<'r> {
-    fn find_one(&self, _: AdjectiveId) -> Option<Adjective> {
-        unimplemented!();
+    fn find_one(&self, id: AdjectiveId) -> Option<Adjective> {
+        ::repo::adjective::find_one_by_id(*id, &*self.conn.get())
+            .map(Adjective::from)
     }
 
     fn find_one_by_value(&self, value: &str) -> Option<Adjective> {

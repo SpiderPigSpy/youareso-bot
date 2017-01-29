@@ -61,6 +61,16 @@ impl Joke {
         &self.author
     }
     
+
+    pub fn subject(&self) -> &Subject {
+        &self.subject
+    
+    }
+
+    pub fn adjective(&self) -> &Adjective {
+        &self.adjective
+    }
+    
     pub fn text(&self) -> &str {
         &self.text
     }
