@@ -4,14 +4,14 @@ use domain::*;
 use id::*;
 use application::services::*;
 
-pub struct RandomBySubject<'r> {
-    services: &'r Services<'r>
+pub struct RandomBySubject {
+    
 }
 
-impl<'r> MessageHandler for RandomBySubject<'r> {
-     fn handle(&self, message: &IncomingMessage) -> Vec<OutgoingMessage> {
-         if let Some(subject) = self.find_subject(&message.text) {
-             if let Some(joke) = self.services.joke_repository.find_one_random_by_subject(&subject) {
+impl MessageHandler for RandomBySubject {
+     fn handle(&self, message: &IncomingMessage, services: &Services) -> Vec<OutgoingMessage> {
+         if let Some(subject) = self.find_subject(&message.text, services) {
+             if let Some(joke) = services.joke_repository.find_one_random_by_subject(&subject) {
                 if message.text.starts_with("/") {
                     return joke.into();
                 } else {
@@ -25,17 +25,16 @@ impl<'r> MessageHandler for RandomBySubject<'r> {
      }
 }
 
-impl<'r> RandomBySubject<'r> {
-     pub fn new(services: &'r Services) -> RandomBySubject<'r> { 
-         RandomBySubject{
-            services: services
+impl RandomBySubject {
+     pub fn new() -> RandomBySubject { 
+         RandomBySubject {
         } 
      }
 
-     fn find_subject(&self, query: &str) -> Option<Subject> {
+     fn find_subject(&self, query: &str, services: &Services) -> Option<Subject> {
          match extract_search_param(query) {
-             Some(SearchParam::Id(subject_id)) => self.services.subject_repository.find_one(subject_id),
-             Some(SearchParam::Value(subject_value)) => self.services.subject_repository.find_one_by_value(&subject_value),
+             Some(SearchParam::Id(subject_id)) => services.subject_repository.find_one(subject_id),
+             Some(SearchParam::Value(subject_value)) => services.subject_repository.find_one_by_value(&subject_value),
              None => None
          }
      }

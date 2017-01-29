@@ -3,6 +3,7 @@ use domain::User as DomainUser;
 
 use domain::*;
 use application::services::*;
+use application::pool::*;
 
 pub mod handler;
 mod conversions;
@@ -10,32 +11,39 @@ mod conversions;
 pub struct Bot<'r> {
     api: &'r Api,
     handlers: &'r [&'r MessageHandler],
-    services: &'r Services<'r>
+    pool: ConnectionPool,
 }
 
 impl<'r> Bot<'r> {
-    pub fn new(api: &'r Api, services: &'r Services, handlers: &'r [&'r MessageHandler]) -> Bot<'r> {
+    pub fn new(api: &'r Api, pool: ConnectionPool, handlers: &'r [&'r MessageHandler]) -> Bot<'r> {
         Bot {
             api: api,
-            services: services,
+            pool: pool,
             handlers: handlers
         }
     }
 
     pub fn process_message(&self, message: Message) {
         let chat_id = message.chat.id();
-        if let Some(incoming_message) = IncomingMessage::new(message, 
-                                                             &self.services.user_repository) {
-            let messages: Vec<OutgoingMessage> = self.handlers
-                .iter()
-                .flat_map(|handler| handler.handle(&incoming_message))
-                .collect();
-            if messages.is_empty() {
-                self.api.send(chat_id, vec![OutgoingMessage::new(unknown_action_message())]);
-            } else {
-                self.api.send(chat_id, messages);
+        trace!("trying");
+        let conn = self.pool.get();
+        trace!("success");
+        {
+            let services = Services::new(&conn);
+            if let Some(incoming_message) = IncomingMessage::new(message, 
+                                                                &services.user_repository) {
+                let messages: Vec<OutgoingMessage> = self.handlers
+                    .iter()
+                    .flat_map(|handler| handler.handle(&incoming_message, &services))
+                    .collect();
+                if messages.is_empty() {
+                    self.api.send(chat_id, vec![OutgoingMessage::new(unknown_action_message())]);
+                } else {
+                    self.api.send(chat_id, messages);
+                }
             }
         }
+        drop(conn);
     }
 }
 
@@ -76,7 +84,7 @@ impl OutgoingMessage {
 }
 
 pub trait MessageHandler {
-     fn handle(&self, message: &IncomingMessage) -> Vec<OutgoingMessage>;
+     fn handle(&self, message: &IncomingMessage, services: &Services) -> Vec<OutgoingMessage>;
 }
 
 trait OutgoingMessageSender {

@@ -1,6 +1,6 @@
-use application::repository::*;
+use diesel::pg::PgConnection;
 
-use application::pool::*;
+use application::repository::*;
 
 pub struct Services<'r> {
     pub user_repository: PostgresUserRepository<'r>,
@@ -10,7 +10,7 @@ pub struct Services<'r> {
 }
 
 impl<'r> Services<'r> {
-    pub fn new(conn: &'r ConnectionPool) -> Services<'r> {
+    pub fn new(conn: &'r PgConnection) -> Services<'r> {
         Services {
             user_repository: PostgresUserRepository::new(conn),
             subject_repository: PostgresSubjectRepository::new(conn),

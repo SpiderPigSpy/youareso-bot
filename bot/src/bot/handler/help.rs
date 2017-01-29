@@ -1,5 +1,5 @@
 use bot::{IncomingMessage, OutgoingMessage, MessageHandler};
-
+use application::services::*;
 
 pub struct HelpCommand {}
 
@@ -11,7 +11,7 @@ pub fn is_help_command(text: &str) -> bool {
 }
 
 impl MessageHandler for HelpCommand {
-     fn handle(&self, message: &IncomingMessage) -> Vec<OutgoingMessage> {
+     fn handle(&self, message: &IncomingMessage, _: &Services) -> Vec<OutgoingMessage> {
          if is_help_command(&message.text) {
             vec![
                 OutgoingMessage::new(format!("Здесь собираются всякие шутки.

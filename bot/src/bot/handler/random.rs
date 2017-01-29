@@ -3,18 +3,18 @@ use bot::{IncomingMessage, OutgoingMessage, MessageHandler};
 use domain::*;
 use application::services::*;
 
-pub struct Random<'r> {
-    services: &'r Services<'r>
+pub struct Random {
+    
 }
 
 pub fn is_random_joke_command(text: &str) -> bool {
     "/youareso" == text
 }
 
-impl<'r> MessageHandler for Random<'r> {
-     fn handle(&self, message: &IncomingMessage) -> Vec<OutgoingMessage> {
+impl MessageHandler for Random {
+     fn handle(&self, message: &IncomingMessage, services: &Services) -> Vec<OutgoingMessage> {
          if is_random_joke_command(&message.text) {
-             return self.services.joke_repository.find_one_random().into();
+             return services.joke_repository.find_one_random().into();
          }
          vec![
              
@@ -22,10 +22,9 @@ impl<'r> MessageHandler for Random<'r> {
      }
 }
 
-impl<'r> Random<'r> {
-     pub fn new(services: &'r Services) -> Random<'r> { 
+impl Random {
+     pub fn new() -> Random { 
          Random{
-            services: services
         } 
      }
 }

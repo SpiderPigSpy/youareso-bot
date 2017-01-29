@@ -40,12 +40,11 @@ pub fn main() {
 fn listen(api: Api) -> Result<()> {
     let mut listener = api.listener(ListeningMethod::LongPoll(None));
     let conn = establish_connection();
-    let services = Services::new(&conn);
     let help = HelpCommand::new();
-    let random_subject = RandomBySubject::new(&services);
-    let random_adjective = RandomByAdjective::new(&services);
-    let new_joke = NewJokeHandler::new(&services);
-    let random = Random::new(&services);
+    let random_subject = RandomBySubject::new();
+    let random_adjective = RandomByAdjective::new();
+    let new_joke = NewJokeHandler::new();
+    let random = Random::new();
     let handlers: [&MessageHandler; 5] = [
         &help,
         &random_subject,
@@ -53,16 +52,18 @@ fn listen(api: Api) -> Result<()> {
         &new_joke,
         &random
     ];
-    let bot = Bot::new(&api, &services, &handlers);
+    let bot = Bot::new(&api, conn, &handlers);
     // Fetch new updates via long poll method
     let res = listener.listen(|u| {
+        trace!("listen");
         if let Some(message) = u.message {
             debug!("Raw message: {:?}", &message);
             bot.process_message(message);
+            trace!("sent!");
         }
         Ok(ListeningAction::Continue)
     });
-
+    error!("OUT");
     return res;
 }
 

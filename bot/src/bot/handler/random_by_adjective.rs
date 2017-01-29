@@ -4,14 +4,14 @@ use domain::*;
 use application::services::*;
 use id::*;
 
-pub struct RandomByAdjective<'r> {
-    services: &'r Services<'r>
+pub struct RandomByAdjective {
+    
 }
 
-impl<'r> MessageHandler for RandomByAdjective<'r> {
-     fn handle(&self, message: &IncomingMessage) -> Vec<OutgoingMessage> {
-         if let Some(adjective) = self.find_adjective(&message.text) {
-             if let Some(joke) = self.services.joke_repository.find_one_random_by_adjective(&adjective) {
+impl MessageHandler for RandomByAdjective {
+     fn handle(&self, message: &IncomingMessage, services: &Services) -> Vec<OutgoingMessage> {
+         if let Some(adjective) = self.find_adjective(&message.text, services) {
+             if let Some(joke) = services.joke_repository.find_one_random_by_adjective(&adjective) {
                 if message.text.starts_with("/") {
                     return joke.into();
                 } else {
@@ -25,17 +25,17 @@ impl<'r> MessageHandler for RandomByAdjective<'r> {
      }
 }
 
-impl<'r> RandomByAdjective<'r> {
-    pub fn new(services: &'r Services) -> RandomByAdjective<'r> { 
+impl RandomByAdjective {
+    pub fn new() -> RandomByAdjective { 
         RandomByAdjective{
-        services: services
-    } 
+       
+        } 
     }
     
-    fn find_adjective(&self, query: &str) -> Option<Adjective> {
+    fn find_adjective(&self, query: &str, services: &Services) -> Option<Adjective> {
         match extract_search_param(query) {
-            Some(SearchParam::Id(adjective_id)) => self.services.adjective_repository.find_one(adjective_id),
-            Some(SearchParam::Value(adjective_value)) => self.services.adjective_repository.find_one_by_value(&adjective_value),
+            Some(SearchParam::Id(adjective_id)) => services.adjective_repository.find_one(adjective_id),
+            Some(SearchParam::Value(adjective_value)) => services.adjective_repository.find_one_by_value(&adjective_value),
             None => None
         }
     }

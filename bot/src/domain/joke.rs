@@ -76,6 +76,6 @@ impl Joke {
     }
 
     pub fn copyright(&self) -> String {
-        format!("(c) {}", self.author.username())
+        format!("(c){}", self.author.username())
     }
 }

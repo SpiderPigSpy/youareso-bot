@@ -5,46 +5,44 @@ use application::services::*;
 use domain::*;
 use domain::service::joke::*;
 
-pub struct NewJokeHandler<'r> {
-    services: &'r Services<'r>
+pub struct NewJokeHandler {
 }
 
-impl<'r> MessageHandler for NewJokeHandler<'r> {
-     fn handle(&self, message: &IncomingMessage) -> Vec<OutgoingMessage> {
+impl MessageHandler for NewJokeHandler {
+     fn handle(&self, message: &IncomingMessage, services: &Services) -> Vec<OutgoingMessage> {
          if let Some(new_joke_params) = NewJokeParams::parse(&message.text) {
              if let Err(multiple_error) = new_joke_params.validate() {
                  return Self::validation_error_message(multiple_error);
              }
-             if let Some(alreay_existing_same_joke) = self.find_existing(&new_joke_params) {
+             if let Some(alreay_existing_same_joke) = self.find_existing(&new_joke_params, services) {
                  return Self::already_exists_message(alreay_existing_same_joke);
              }
-             return into_messages(self.create_new(new_joke_params, message.user.clone()));
+             return into_messages(self.create_new(new_joke_params, message.user.clone(), services));
          }
          vec![]
      }
 }
 
-impl<'r> NewJokeHandler<'r> {
-     pub fn new(services: &'r Services) -> NewJokeHandler<'r> { 
+impl NewJokeHandler {
+     pub fn new() -> NewJokeHandler { 
          NewJokeHandler{
-            services: services
         } 
      }
 
-     fn find_existing(&self, new_joke_params: &NewJokeParams) -> Option<Joke> {
-         self.services.joke_repository.find_one_by_text(&new_joke_params.text)
+     fn find_existing(&self, new_joke_params: &NewJokeParams, services: &Services) -> Option<Joke> {
+         services.joke_repository.find_one_by_text(&new_joke_params.text)
      }
 
-     fn create_new(&self, new_joke_params: NewJokeParams, author: User) -> Option<Joke> {
+     fn create_new(&self, new_joke_params: NewJokeParams, author: User, services: &Services) -> Option<Joke> {
          let subject = service::subject::find_or_create(
              &new_joke_params.subject, 
-             &self.services.subject_repository
+             &services.subject_repository
          );
          let adjective = service::adjective::find_or_create(
              &new_joke_params.adjective, 
-             &self.services.adjective_repository
+             &services.adjective_repository
          );
-         let new_joke = self.services.joke_repository.create(
+         let new_joke = services.joke_repository.create(
             NewJoke::new(author, subject, adjective, new_joke_params.text)
          );
          Some(new_joke)
