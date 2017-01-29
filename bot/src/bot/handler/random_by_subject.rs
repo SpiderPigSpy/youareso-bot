@@ -45,7 +45,7 @@ fn extract_search_param(query: &str) -> Option<SearchParam> {
     if query.starts_with("/") {
         return extract_subject_id(query);
     }
-    Some(SearchParam::Value(query.to_owned()))
+    Some(SearchParam::Value(query.to_owned().to_lowercase()))
 }
 
 fn extract_subject_id(query: &str) -> Option<SearchParam> {

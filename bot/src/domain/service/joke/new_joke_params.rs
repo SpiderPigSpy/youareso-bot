@@ -10,20 +10,22 @@ pub struct NewJokeParams {
 }
 
 impl NewJokeParams {
-    pub fn parse(possible_joke: &str) -> Option<NewJokeParams> {
+    pub fn parse(possible_joke: &str) -> Option<NewJokeParams> {  
         lazy_static! {
             static ref YOU_FEMALE: Regex = Regex::new("ты такая (.+), что (.+)").unwrap();
             static ref YOU_MALE: Regex = Regex::new("ты такой (.+), что (.+)").unwrap();
             static ref GENERIC_MALE: Regex = Regex::new("твой (.+) такой (.+), что (.+)").unwrap();
             static ref GENERIC_FEMALE: Regex = Regex::new("твоя (.+) такая (.+), что (.+)").unwrap();
         }
-        if let Some(captures) = YOU_FEMALE.captures(possible_joke)
-                    .or_else(|| YOU_MALE.captures(possible_joke)) {
+        let lowercase_possible_joke = possible_joke.to_owned().to_lowercase();
+
+        if let Some(captures) = YOU_FEMALE.captures(&lowercase_possible_joke)
+                    .or_else(|| YOU_MALE.captures(&lowercase_possible_joke)) {
             let adjective = captures.get(1).unwrap().as_str().to_owned();
             return Some(NewJokeParams::you(adjective, possible_joke.to_owned()));
         }
-        if let Some(captures) = GENERIC_MALE.captures(possible_joke)
-                    .or_else(|| GENERIC_FEMALE.captures(possible_joke)) {
+        if let Some(captures) = GENERIC_MALE.captures(&lowercase_possible_joke)
+                    .or_else(|| GENERIC_FEMALE.captures(&lowercase_possible_joke)) {
             let subject = captures.get(1).unwrap().as_str().to_owned();
             let adjective = captures.get(2).unwrap().as_str().to_owned();
             return Some(NewJokeParams::anyone(subject, adjective, possible_joke.to_owned()));
