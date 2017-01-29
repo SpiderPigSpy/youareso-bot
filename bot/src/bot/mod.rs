@@ -26,8 +26,14 @@ impl<'r> Bot<'r> {
         let chat_id = message.chat.id();
         if let Some(incoming_message) = IncomingMessage::new(message, 
                                                              &self.services.user_repository) {
-            for handler in self.handlers {
-                self.api.send(chat_id, handler.handle(&incoming_message));
+            let messages: Vec<OutgoingMessage> = self.handlers
+                .iter()
+                .flat_map(|handler| handler.handle(&incoming_message))
+                .collect();
+            if messages.is_empty() {
+                self.api.send(chat_id, vec![OutgoingMessage::new(unknown_action_message())]);
+            } else {
+                self.api.send(chat_id, messages);
             }
         }
     }
@@ -83,4 +89,12 @@ impl OutgoingMessageSender for Api {
              self.send_message(chat_id, message.text, None, None, None, None).unwrap();
          }
      }
+}
+
+fn unknown_action_message() -> String {
+    format!("Ты не хочешь случайную шутку;
+не похоже, что ты хочешь добавить новую шутку;
+я не нашел такого объекта насмешки;
+я не нашел токого свойства насмешки.
+Чего же ты хочешь? Попробуй /help")
 }

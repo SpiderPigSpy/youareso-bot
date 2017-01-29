@@ -46,13 +46,11 @@ fn listen(api: Api) -> Result<()> {
     let random_adjective = RandomByAdjective::new(&services);
     let new_joke = NewJokeHandler::new(&services);
     let random = Random::new(&services);
-    let unknown = UnknownCommandHandler::new(&services);
-    let handlers: [&MessageHandler; 6] = [
+    let handlers: [&MessageHandler; 5] = [
         &help,
         &random_subject,
         &random_adjective,
         &new_joke,
-        &unknown,
         &random
     ];
     let bot = Bot::new(&api, &services, &handlers);
