@@ -25,9 +25,7 @@ impl<'r> Bot<'r> {
 
     pub fn process_message(&self, message: Message) {
         let chat_id = message.chat.id();
-        trace!("trying");
         let conn = self.pool.get();
-        trace!("success");
         {
             let services = Services::new(&conn);
             if let Some(incoming_message) = IncomingMessage::new(message, 
@@ -103,6 +101,6 @@ fn unknown_action_message() -> String {
     format!("Ты не хочешь случайную шутку;
 не похоже, что ты хочешь добавить новую шутку;
 я не нашел такого объекта насмешки;
-я не нашел токого свойства насмешки.
+я не нашел такого свойства насмешки.
 Чего же ты хочешь? Попробуй /help")
 }
