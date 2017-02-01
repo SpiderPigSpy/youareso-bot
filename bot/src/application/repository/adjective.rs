@@ -5,7 +5,6 @@ use repo::dao::NewAdjective as RawNewAdjective;
 
 use domain::*;
 use id::*;
-use application::pool::*;
 
 pub struct PostgresAdjectiveRepository<'r> {
     conn: &'r PgConnection

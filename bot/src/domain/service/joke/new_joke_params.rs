@@ -12,10 +12,10 @@ pub struct NewJokeParams {
 impl NewJokeParams {
     pub fn parse(possible_joke: &str) -> Option<NewJokeParams> {  
         lazy_static! {
-            static ref YOU_FEMALE: Regex = Regex::new("ты такая (.+), что (.+)").unwrap();
-            static ref YOU_MALE: Regex = Regex::new("ты такой (.+), что (.+)").unwrap();
-            static ref GENERIC_MALE: Regex = Regex::new("твой (.+) такой (.+), что (.+)").unwrap();
-            static ref GENERIC_FEMALE: Regex = Regex::new("твоя (.+) такая (.+), что (.+)").unwrap();
+            static ref YOU_FEMALE: Regex = Regex::new("ты такая (.+?), что (.+)").unwrap();
+            static ref YOU_MALE: Regex = Regex::new("ты такой (.+?), что (.+)").unwrap();
+            static ref GENERIC_MALE: Regex = Regex::new("твой (.+) такой (.+?), что (.+)").unwrap();
+            static ref GENERIC_FEMALE: Regex = Regex::new("твоя (.+) такая (.+?), что (.+)").unwrap();
         }
         let lowercase_possible_joke = possible_joke.to_owned().to_lowercase();
 
@@ -128,5 +128,31 @@ mod tests {
                 joke.to_owned()
             ))
         );
+    }
+
+    #[test]
+    fn correctly_creates_with_several_what() {
+        //given
+        let joke = "ты такой жирный, что , что и что, что то";
+        //when
+        let maybe_new_joke = NewJokeParams::parse(joke);
+        //then
+        assert_eq!(
+            maybe_new_joke, 
+            Some(NewJokeParams::you(
+                "жирный".to_owned(), 
+                joke.to_owned()
+            ))
+        );
+    }
+
+    #[test]
+    fn returns_none_when_does_not_match() {
+        //given
+        let joke = "твой хак такой ,что что что";
+        //when
+        let maybe_new_joke = NewJokeParams::parse(joke);
+        //then
+        assert!(maybe_new_joke.is_none());
     }
 }

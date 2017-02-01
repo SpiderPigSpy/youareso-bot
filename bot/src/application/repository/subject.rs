@@ -5,7 +5,6 @@ use repo::dao::NewSubject as RawNewSubject;
 
 use domain::*;
 use id::*;
-use application::pool::*;
 
 pub struct PostgresSubjectRepository<'r> {
     conn: &'r PgConnection

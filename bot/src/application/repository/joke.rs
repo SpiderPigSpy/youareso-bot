@@ -8,7 +8,6 @@ use repo::dao::NewJoke as RawNewJoke;
 
 use domain::*;
 use id::*;
-use application::pool::*;
 
 pub struct PostgresJokeRepository<'r> {
     conn: &'r PgConnection

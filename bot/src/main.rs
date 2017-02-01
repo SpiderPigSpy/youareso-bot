@@ -24,7 +24,6 @@ use std::env;
 
 use bot::*;
 use bot::handler::*;
-use application::services::*;
 use application::pool::*;
 
 pub fn main() {

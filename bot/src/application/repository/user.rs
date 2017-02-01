@@ -5,7 +5,6 @@ use repo::dao::NewUser as RawNewUser;
 
 use domain::*;
 use id::*;
-use application::pool::*;
 
 pub struct PostgresUserRepository<'r> {
     conn: &'r PgConnection
